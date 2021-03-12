@@ -17,7 +17,7 @@ In the processing, it makes images responsive by:
 
 ## Install
 
-`npm install gatsby-remark-images gatsby-plugin-sharp`
+`npm install gatsby-remark-images-remote gatsby-plugin-sharp gatsby-source-filesystem`
 
 ## How to use
 
@@ -30,7 +30,7 @@ plugins: [
     options: {
       plugins: [
         {
-          resolve: `gatsby-remark-images`,
+          resolve: `gatsby-remark-images-remote`,
           options: {
             // It's important to specify the maxWidth (in pixels) of
             // the content container as this plugin uses this as the
@@ -83,7 +83,7 @@ a reserved keyword `GATSBY_EMPTY_ALT` can be used.
 
 ```javascript
 {
-  resolve: `gatsby-remark-images`,
+  resolve: `gatsby-remark-images-remote`,
   options: {
     maxWidth: 800,
     wrapperStyle: fluidResult => `flex:${_.round(fluidResult.aspectRatio, 2)};`,
