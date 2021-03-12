@@ -16,6 +16,7 @@ const Promise = require(`bluebird`)
 const cheerio = require(`cheerio`)
 const { slash } = require(`gatsby-core-utils`)
 const chalk = require(`chalk`)
+const { createRemoteFileNode } = require(`gatsby-source-filesystem`)
 
 // If the image is relative (not hosted elsewhere)
 // 1. Find the image file
@@ -33,6 +34,8 @@ module.exports = (
     reporter,
     cache,
     compiler,
+    createNodeId,
+    actions
   },
   pluginOptions
 ) => {
@@ -127,25 +130,36 @@ module.exports = (
     inLink,
     overWrites = {}
   ) {
-    // Check if this markdownNode has a File parent. This plugin
-    // won't work if the image isn't hosted locally.
-    const parentNode = getNode(markdownNode.parent)
-    let imagePath
-    if (parentNode && parentNode.dir) {
-      imagePath = slash(path.join(parentNode.dir, getImageInfo(node.url).url))
-    } else {
-      return null
-    }
-
-    const imageNode = _.find(files, file => {
-      if (file && file.absolutePath) {
-        return file.absolutePath === imagePath
+    let imageNode
+    
+    if (isRelativeUrl(node.url)) {
+      // Check if this markdownNode has a File parent.
+      const parentNode = getNode(markdownNode.parent)
+      let imagePath
+      if (parentNode && parentNode.dir) {
+        imagePath = slash(path.join(parentNode.dir, getImageInfo(node.url).url))
+      } else {
+        return null
       }
-      return null
-    })
-
-    if (!imageNode || !imageNode.absolutePath) {
-      return resolve()
+      
+      imageNode = _.find(files, file => {
+        if (file && file.absolutePath) {
+          return file.absolutePath === imagePath
+        }
+        return null
+      })
+      
+      if (!imageNode || !imageNode.absolutePath) {
+        return resolve()
+      }
+    } else {
+      imageNode = await createRemoteFileNode({
+        url: node.url,
+        parentNodeId: node.id,
+        cache,
+        createNode: actions.createNode,
+        createNodeId
+      })
     }
 
     const fluidResult = await fluid({
@@ -410,7 +424,6 @@ module.exports = (
           // Ignore gifs as we can't process them,
           // svgs as they are already responsive by definition
           if (
-            isRelativeUrl(node.url) &&
             fileType !== `gif` &&
             fileType !== `svg`
           ) {
@@ -477,7 +490,6 @@ module.exports = (
               // Ignore gifs as we can't process them,
               // svgs as they are already responsive by definition
               if (
-                isRelativeUrl(formattedImgTag.url) &&
                 fileType !== `gif` &&
                 fileType !== `svg`
               ) {
