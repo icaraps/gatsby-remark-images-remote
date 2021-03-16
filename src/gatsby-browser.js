@@ -20,23 +20,16 @@ exports.onRouteUpdate = (apiCallbackContext, pluginOptions) => {
     )
     const imageElement = imageWrapper.querySelector(`.${imageClass}`)
 
-    const onImageLoad = () => {
-      backgroundElement.style.transition = `opacity 0.5s 0.5s`
-      imageElement.style.transition = `opacity 0.5s`
-      onImageComplete()
-    }
-
     const onImageComplete = () => {
       backgroundElement.style.opacity = 0
       imageElement.style.opacity = 1
       imageElement.style.color = `inherit`
       imageElement.style.boxShadow = `inset 0px 0px 0px 400px ${options.backgroundColor}`
-      imageElement.removeEventListener(`load`, onImageLoad)
+      imageElement.removeEventListener(`load`, onImageComplete)
       imageElement.removeEventListener(`error`, onImageComplete)
     }
-
-    imageElement.style.opacity = 0
-    imageElement.addEventListener(`load`, onImageLoad)
+    
+    imageElement.addEventListener(`load`, onImageComplete)
     imageElement.addEventListener(`error`, onImageComplete)
     if (imageElement.complete) {
       onImageComplete()

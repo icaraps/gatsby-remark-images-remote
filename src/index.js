@@ -211,6 +211,8 @@ module.exports = (
       margin: 0;
       vertical-align: middle;
       position: absolute;
+      opacity: 0;
+      transition: opacity 0.5s;
       top: 0;
       left: 0;`.replace(/\s*(\S+:)\s*/g, `$1`)
 
@@ -353,7 +355,7 @@ module.exports = (
     let rawHTML = `
   <span
     class="${imageBackgroundClass}"
-    style="padding-bottom: ${ratio}; position: relative; bottom: 0; left: 0;${bgImage} display: block;"
+    style="padding-bottom: ${ratio}; position: relative; bottom: 0; left: 0;${bgImage} display: block; transition: opacity 0.5s 0.5s;"
   ></span>
   ${imageTag}
   `.trim()
