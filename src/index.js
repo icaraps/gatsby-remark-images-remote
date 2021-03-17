@@ -213,6 +213,8 @@ module.exports = (
       position: absolute;
       opacity: 0;
       transition: opacity 0.5s;
+      color: inherit;
+      box-shadow: inset 0px 0px 0px 400px ${options.backgroundColor};
       top: 0;
       left: 0;`.replace(/\s*(\S+:)\s*/g, `$1`)
 
@@ -355,7 +357,7 @@ module.exports = (
     let rawHTML = `
   <span
     class="${imageBackgroundClass}"
-    style="padding-bottom: ${ratio}; position: relative; bottom: 0; left: 0;${bgImage} display: block; transition: opacity 0.5s 0.5s;"
+    style="padding-bottom: ${ratio}; position: relative; bottom: 0; left: 0;${bgImage} display: block; transition: opacity 0.5s 0.5s; pointer-events: none;"
   ></span>
   ${imageTag}
   `.trim()

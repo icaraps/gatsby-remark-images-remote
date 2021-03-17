@@ -23,8 +23,6 @@ exports.onRouteUpdate = (apiCallbackContext, pluginOptions) => {
     const onImageComplete = () => {
       backgroundElement.style.opacity = 0
       imageElement.style.opacity = 1
-      imageElement.style.color = `inherit`
-      imageElement.style.boxShadow = `inset 0px 0px 0px 400px ${options.backgroundColor}`
       imageElement.removeEventListener(`load`, onImageComplete)
       imageElement.removeEventListener(`error`, onImageComplete)
     }
