@@ -17,6 +17,9 @@ const cheerio = require(`cheerio`)
 const { slash } = require(`gatsby-core-utils`)
 const chalk = require(`chalk`)
 const { createRemoteFileNode } = require(`gatsby-source-filesystem`)
+const { parse } = require('url')
+const generate = require('@babel/generator')
+const t = require('@babel/types')
 
 // If the image is relative (not hosted elsewhere)
 // 1. Find the image file
@@ -47,7 +50,37 @@ module.exports = (
         (node.type === `html` && !!node.value.match(/<a /)) ||
         node.type === `link`
     )
-
+  
+  // Source: https://github.com/pedronauck/docz/blob/ed169cfc787fe36c0375e378d9cf0d6f97624a5a/core/remark-docz/src/index.ts
+  const createImgSrc = (src) => {
+    const parsed = parse(src)
+    
+    if (parsed.protocol) {
+      return t.stringLiteral(src)
+    }
+    
+    let { pathname } = parsed
+    if (!/^(?:\.[./]+|@)/.test(pathname)) {
+      pathname = `./${pathname}`
+    }
+    return t.jsxExpressionContainer(
+      t.callExpression(t.identifier('require'), [t.stringLiteral(pathname)])
+    )
+  }
+  
+  // Source: https://github.com/pedronauck/docz/blob/ed169cfc787fe36c0375e378d9cf0d6f97624a5a/core/remark-docz/src/index.ts
+  const imageToJsx = (node) =>
+    generate.default(
+      t.jsxOpeningElement(
+        t.jsxIdentifier('img'),
+        [
+          t.jsxAttribute(t.jsxIdentifier('alt'), t.stringLiteral(node.alt || '')),
+          t.jsxAttribute(t.jsxIdentifier('src'), createImgSrc(node.url)),
+        ],
+        true
+      )
+    ).code
+  
   // Get all the available definitions in the markdown tree
   const definitions = getDefinitions(markdownAST)
 
@@ -150,6 +183,10 @@ module.exports = (
       })
       
       if (!imageNode || !imageNode.absolutePath) {
+        // Source: https://github.com/pedronauck/docz/blob/ed169cfc787fe36c0375e378d9cf0d6f97624a5a/core/remark-docz/src/index.ts
+        node.type = 'jsx'
+        node.value = imageToJsx(node)
+  
         return resolve()
       }
     } else {
