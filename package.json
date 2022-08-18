@@ -1,7 +1,7 @@
 {
   "name": "gatsby-remark-images-remote",
   "description": "Processes local and remote images in markdown so they can be used in the production build.",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "dependencies": {
     "@babel/runtime": "^7.18.9",
     "chalk": "^4.10.0",
